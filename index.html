@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Medication Counseling</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Hospital Pharmacy</p>
+        <h1>Medication Counseling</h1>
+      </div>
+      <button id="printBtn" class="icon-button" type="button" aria-label="Print counseling list" title="Print counseling list">
+        <span aria-hidden="true">Print</span>
+      </button>
+    </header>
+
+    <main class="app-shell">
+      <section class="entry-panel" aria-labelledby="entryTitle">
+        <h2 id="entryTitle">Patient Medication List</h2>
+        <form id="drugForm" class="drug-form" autocomplete="off">
+          <label for="drugInput">Drug name</label>
+          <div class="input-row">
+            <input id="drugInput" name="drug" type="text" placeholder="Enter a drug, then press Enter" list="drugOptions">
+            <button type="submit">Add</button>
+          </div>
+          <datalist id="drugOptions"></datalist>
+        </form>
+        <p id="statusText" class="status" role="status">Loading counseling guide...</p>
+        <div id="selectedList" class="selected-list" aria-live="polite"></div>
+      </section>
+
+      <section class="results-panel" aria-labelledby="resultsTitle">
+        <div class="section-heading">
+          <h2 id="resultsTitle">Counseling Information</h2>
+          <button id="clearBtn" class="text-button" type="button">Clear</button>
+        </div>
+        <div id="results" class="results empty">
+          <p>Add a medication to build the counseling handout.</p>
+        </div>
+      </section>
+
+      <section class="guide-panel" aria-labelledby="guideTitle">
+        <details>
+          <summary id="guideTitle">Full Counseling Guide Source</summary>
+          <pre id="fullGuide"></pre>
+        </details>
+      </section>
+    </main>
+
+    <script src="guide-data.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
