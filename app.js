@@ -301,12 +301,16 @@ function splitAliasTitle(title) {
 function populateOptions(entries) {
   const names = new Set();
   entries
-    .filter((entry) => entry.type === "drug")
+    .filter((entry) => entry.type === "drug" && shouldShowInDropdown(entry))
     .forEach((entry) => getDrugOptionNames(entry).forEach((name) => names.add(name)));
   els.options.innerHTML = [...names]
     .sort((a, b) => a.localeCompare(b))
     .map((name) => `<option value="${escapeHtml(name)}"></option>`)
     .join("");
+}
+
+function shouldShowInDropdown(entry) {
+  return state.activeGuide !== "patient" || Boolean(entry.category);
 }
 
 function getDrugOptionNames(entry) {
