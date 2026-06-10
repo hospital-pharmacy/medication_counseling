@@ -302,11 +302,30 @@ function populateOptions(entries) {
   const names = new Set();
   entries
     .filter((entry) => entry.type === "drug")
-    .forEach((entry) => entry.aliases.forEach((alias) => names.add(alias)));
+    .forEach((entry) => getDrugOptionNames(entry).forEach((name) => names.add(name)));
   els.options.innerHTML = [...names]
     .sort((a, b) => a.localeCompare(b))
     .map((name) => `<option value="${escapeHtml(name)}"></option>`)
     .join("");
+}
+
+function getDrugOptionNames(entry) {
+  if (entry.category) return [entry.title];
+
+  const parentheticalNames = [...entry.title.matchAll(/\(([^)]+)\)/g)]
+    .flatMap((match) => splitAliasTitle(match[1]));
+  const titleWithoutParentheticals = entry.title.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+
+  return parentheticalNames
+    .concat(splitAliasTitle(titleWithoutParentheticals), titleWithoutParentheticals, extractExamples(entry.content))
+    .map((name) => name.replace(/\s*\([^)]*\)\s*/g, " ").trim())
+    .filter(isDrugOptionName);
+}
+
+function isDrugOptionName(name) {
+  if (!name || name.length > 60) return false;
+  return !/^(additional|antibiotics|anticoagulants|antiplatelets|antivirals|antifungals|basic|blood pressure|bowel|common|corticosteroids|diabetes|diuretics|examples|general|heart failure|infection|inhalers|medications|pain|part|psychiatric|rejection|seizure|source|table|transplant)/i.test(name)
+    && !/\b(category|counseling|focus|guide|medications|note|section|shared|subcutaneous)\b/i.test(name);
 }
 
 function addMedication(query) {
