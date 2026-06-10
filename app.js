@@ -310,22 +310,39 @@ function populateOptions(entries) {
 }
 
 function getDrugOptionNames(entry) {
-  if (entry.category) return [entry.title];
-
   const parentheticalNames = [...entry.title.matchAll(/\(([^)]+)\)/g)]
     .flatMap((match) => splitAliasTitle(match[1]));
   const titleWithoutParentheticals = entry.title.replace(/\s*\([^)]*\)\s*/g, " ").trim();
+  const sourceNames = entry.category
+    ? [entry.title]
+    : parentheticalNames.concat(splitAliasTitle(titleWithoutParentheticals), titleWithoutParentheticals, extractExamples(entry.content));
 
-  return parentheticalNames
-    .concat(splitAliasTitle(titleWithoutParentheticals), titleWithoutParentheticals, extractExamples(entry.content))
-    .map((name) => name.replace(/\s*\([^)]*\)\s*/g, " ").trim())
+  return sourceNames
+    .flatMap(splitDrugOptionName)
     .filter(isDrugOptionName);
+}
+
+function splitDrugOptionName(name) {
+  const cleaned = cleanDrugOptionName(name);
+  return splitAliasTitle(cleaned)
+    .concat(cleaned)
+    .map(cleanDrugOptionName);
+}
+
+function cleanDrugOptionName(name) {
+  return name
+    .replace(/\s*\([^)]*\)\s*/g, " ")
+    .replace(/^.*\bsuch as\s+/i, "")
+    .replace(/\b(IV|subcutaneous|patches|tablets|capsules|injections?)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .replace(/[.,;:]+$/, "")
+    .trim();
 }
 
 function isDrugOptionName(name) {
   if (!name || name.length > 60) return false;
   return !/^(additional|antibiotics|anticoagulants|antiplatelets|antivirals|antifungals|basic|blood pressure|bowel|common|corticosteroids|diabetes|diuretics|examples|general|heart failure|infection|inhalers|medications|pain|part|psychiatric|rejection|seizure|source|table|transplant)/i.test(name)
-    && !/\b(category|counseling|focus|guide|medications|note|section|shared|subcutaneous)\b/i.test(name);
+    && !/\b(category|counseling|focus|guide|medications|note|section|shared|subcutaneous|such as)\b/i.test(name);
 }
 
 function addMedication(query) {
