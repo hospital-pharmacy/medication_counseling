@@ -4,7 +4,7 @@ const GUIDE_SOURCES = {
     fallback: (window.GUIDE_TEXTS && window.GUIDE_TEXTS.patient) || window.COUNSELING_GUIDE_TEXT || ""
   },
   detailed: {
-    path: "medication_side_effect_detailed_reference.txt",
+    path: "medication_detailed_reference.txt",
     fallback: (window.GUIDE_TEXTS && window.GUIDE_TEXTS.detailed) || window.COUNSELING_GUIDE_TEXT || ""
   }
 };
