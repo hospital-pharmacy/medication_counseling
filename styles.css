@@ -42,6 +42,34 @@ input {
   backdrop-filter: blur(10px);
 }
 
+.version-control {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f5f8fa;
+}
+
+.version-control {
+  grid-template-columns: 1fr;
+  margin-bottom: 14px;
+}
+
+.version-button {
+  min-height: 34px;
+  border-radius: 6px;
+  padding: 7px 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.version-button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
 .eyebrow {
   margin: 0 0 2px;
   color: var(--accent-dark);
@@ -256,6 +284,10 @@ details[open] summary {
 
   h1 {
     font-size: 1.6rem;
+  }
+
+  .version-control {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

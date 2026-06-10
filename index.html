@@ -9,17 +9,25 @@
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">Hospital Pharmacy</p>
-        <h1>Medication Counseling</h1>
+        <p id="appEyebrow" class="eyebrow">Hospital Pharmacy</p>
+        <h1 id="appTitle">Medication Counseling</h1>
       </div>
       <button id="printBtn" class="icon-button" type="button" aria-label="Print counseling list" title="Print counseling list">
-        <span aria-hidden="true">Print</span>
+        <span id="printLabel" aria-hidden="true">Print</span>
       </button>
     </header>
 
     <main class="app-shell">
       <section class="entry-panel" aria-labelledby="entryTitle">
         <h2 id="entryTitle">Patient Medication List</h2>
+        <div class="version-control" aria-label="Guide version">
+          <button id="patientModeBtn" class="version-button active" type="button" data-guide="patient">
+            Patient counseling
+          </button>
+          <button id="detailedModeBtn" class="version-button" type="button" data-guide="detailed">
+            Detailed reference
+          </button>
+        </div>
         <form id="drugForm" class="drug-form" autocomplete="off">
           <label for="drugInput">Drug name</label>
           <div class="input-row">
