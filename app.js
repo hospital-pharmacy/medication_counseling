@@ -45,6 +45,89 @@ const state = {
   }
 };
 
+const DETAILED_TOC_GROUPS = [
+  {
+    title: "Antibiotics",
+    matches: ["antibiotics"],
+    meds: ["azithromycin", "beta lactam", "cefazolin", "cefepime", "ceftriaxone", "daptomycin", "doxycycline", "ertapenem", "gentamicin", "tobramycin", "levofloxacin", "ciprofloxacin", "linezolid", "metronidazole", "piperacillin", "vancomycin"]
+  },
+  {
+    title: "Blood Thinners and Antiplatelets",
+    matches: ["anticoagulants", "anti coagulants", "antiplatelets"],
+    meds: ["heparin", "enoxaparin", "apixaban", "rivaroxaban", "warfarin", "aspirin", "clopidogrel", "ticagrelor"]
+  },
+  {
+    title: "Diabetes Medications",
+    matches: ["diabetes medications"],
+    meds: ["insulin glargine", "insulin lispro", "empagliflozin", "dapagliflozin", "metformin"]
+  },
+  {
+    title: "Heart Failure, Blood Pressure, and Diuretics",
+    matches: ["heart failure medications", "blood pressure medications", "diuretics"],
+    meds: ["sacubitril valsartan", "carvedilol", "metoprolol", "furosemide", "bumetanide", "torsemide", "spironolactone", "nitroglycerin", "lisinopril", "losartan", "amlodipine", "hydralazine", "nifedipine", "hydrochlorothiazide"]
+  },
+  {
+    title: "Breathing Medicines",
+    matches: ["inhalers", "respiratory medications"],
+    meds: ["albuterol", "ipratropium", "tiotropium", "fluticasone", "salmeterol", "budesonide", "formoterol"]
+  },
+  {
+    title: "Transplant and Immune-System Medicines",
+    matches: ["transplant medications"],
+    meds: ["tacrolimus", "cyclosporine", "mycophenolate", "sirolimus", "everolimus", "belatacept", "apheresis", "ivig", "antithymocyte", "thymoglobulin"]
+  },
+  {
+    title: "Infection-Prevention Medicines for Transplant or Low Immunity",
+    matches: ["antivirals and antifungals"],
+    meds: ["valganciclovir", "ganciclovir", "sulfamethoxazole", "trimethoprim", "atovaquone", "dapsone", "pentamidine", "clotrimazole", "fluconazole", "voriconazole", "posaconazole"]
+  },
+  {
+    title: "Pain Medicines: Non-Opioid",
+    matches: ["pain medications non opioid"],
+    meds: ["acetaminophen", "ibuprofen", "ketorolac", "naproxen", "lidocaine"]
+  },
+  {
+    title: "Pain Medicines: Opioids",
+    matches: ["pain medications opioids"],
+    meds: ["oxycodone", "hydromorphone", "morphine", "fentanyl", "hydrocodone"]
+  },
+  {
+    title: "Steroids",
+    matches: ["corticosteroids"],
+    meds: ["prednisone", "methylprednisolone", "dexamethasone", "hydrocortisone"]
+  },
+  {
+    title: "Nausea Medicines",
+    matches: ["antiemetics", "nausea medications"],
+    meds: ["ondansetron", "prochlorperazine", "promethazine", "metoclopramide"]
+  },
+  {
+    title: "Bowel Medicines",
+    matches: ["bowel regimen"],
+    meds: ["senna", "polyethylene glycol", "docusate", "bisacodyl", "lactulose"]
+  },
+  {
+    title: "Psychiatric, Sleep, and Anxiety Medicines",
+    matches: ["psychiatric", "sleep medications"],
+    meds: ["sertraline", "escitalopram", "quetiapine", "haloperidol", "trazodone", "melatonin", "lorazepam"]
+  },
+  {
+    title: "Seizure Medicines",
+    matches: ["seizure medications"],
+    meds: ["levetiracetam", "phenytoin", "fosphenytoin", "valproate", "valproic acid", "divalproex", "lacosamide", "carbamazepine", "oxcarbazepine", "lamotrigine", "topiramate", "phenobarbital", "gabapentin"]
+  },
+  {
+    title: "Electrolytes and Supplements",
+    matches: ["electrolytes", "supplements"],
+    meds: ["potassium", "magnesium", "phosphate", "ferrous sulfate", "iron", "vitamin d", "thiamine", "folic acid"]
+  },
+  {
+    title: "Alcohol Withdrawal or Substance-Use Medicines",
+    matches: ["alcohol withdrawal", "substance use"],
+    meds: ["lorazepam", "diazepam", "phenobarbital", "thiamine", "folic acid", "multivitamins", "buprenorphine", "methadone", "naltrexone"]
+  }
+];
+
 const els = {
   eyebrow: document.getElementById("appEyebrow"),
   title: document.getElementById("appTitle"),
@@ -526,9 +609,9 @@ function renderGuideToc(sections) {
   return `
     <nav class="guide-toc" aria-label="${escapeHtml(t("tableOfContents"))}">
       <h3>${escapeHtml(t("tableOfContents"))}</h3>
-      ${buildTocGroups(sections).map((group) => `
+      ${buildTocGroups(sections).map((group, index) => `
         <div class="toc-group">
-          <a href="#${escapeHtml(group.id)}" data-guide-target="${escapeHtml(group.id)}" class="toc-section">${escapeHtml(group.title)}</a>
+          <a href="#${escapeHtml(group.id)}" data-guide-target="${escapeHtml(group.id)}" class="toc-section">${escapeHtml(`${index + 1}. ${group.title}`)}</a>
           ${group.meds.length ? `
             <div class="toc-meds">
               ${group.meds.map((med) => `<a href="#${escapeHtml(med.id)}" data-guide-target="${escapeHtml(med.id)}">${escapeHtml(med.name)}</a>`).join("")}
@@ -549,14 +632,22 @@ function buildTocGroups(sections) {
     }));
   }
 
-  const groups = [];
+  const groups = DETAILED_TOC_GROUPS.map((group) => ({
+    id: "",
+    title: group.title,
+    meds: []
+  }));
+  const fallbackGroups = [];
+
   sections.forEach((section) => {
-    const title = section.groupTitle || stripSectionNumber(section.title);
-    let group = groups.find((item) => item.title === title);
+    const groupConfig = findDetailedTocGroup(section);
+    const title = groupConfig ? groupConfig.title : cleanDetailedGroupTitle(section.groupTitle || stripSectionNumber(section.title));
+    let group = groups.find((item) => item.title === title) || fallbackGroups.find((item) => item.title === title);
     if (!group) {
       group = { id: section.id, title, meds: [] };
-      groups.push(group);
+      fallbackGroups.push(group);
     }
+    if (!group.id) group.id = section.id;
 
     const names = section.meds.length ? section.meds : getDrugOptionNames({ title: section.title, content: section.content });
     names.forEach((name) => {
@@ -566,7 +657,26 @@ function buildTocGroups(sections) {
     });
   });
 
-  return groups;
+  return groups
+    .concat(fallbackGroups)
+    .filter((group) => group.id && group.meds.length);
+}
+
+function findDetailedTocGroup(section) {
+  const groupKey = normalize(section.groupTitle || "");
+  const titleKey = normalize(section.title || "");
+  const medKey = normalize(getDrugOptionNames({ title: section.title, content: section.content }).join(" "));
+
+  return DETAILED_TOC_GROUPS.find((group) =>
+    group.matches.some((match) => groupKey.includes(normalize(match)) || titleKey.includes(normalize(match)))
+    || group.meds.some((med) => titleKey.includes(normalize(med)) || medKey.includes(normalize(med)))
+  );
+}
+
+function cleanDetailedGroupTitle(title) {
+  return title
+    .replace(/^Additional Common Inpatient Medication Categories$/i, "Other Common Inpatient Medication Categories")
+    .replace(/^Hospital Focus Medication-Specific Counseling Sections$/i, "Hospital Focus Medications");
 }
 
 function renderGuideSection(section) {
