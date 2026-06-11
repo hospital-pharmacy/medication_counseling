@@ -166,9 +166,20 @@ function parseGuide(text) {
   const entries = [];
   const start = findContentStart(lines);
   const end = findContentEnd(lines, start);
+  let groupTitle = "";
 
   for (let index = start; index < end; index += 1) {
     const title = lines[index].trim();
+    if (/^Part \d+:/i.test(title)) {
+      groupTitle = title.replace(/^Part \d+:\s*/i, "");
+      continue;
+    }
+
+    if (isGroupHeading(title)) {
+      groupTitle = title.replace(/^[A-Z]\.\s*/, "");
+      continue;
+    }
+
     if (!isEntryTitle(title, lines[index + 1])) continue;
 
     let nextIndex = end;
@@ -187,6 +198,7 @@ function parseGuide(text) {
       aliases: buildAliases(title, content),
       content,
       searchText: normalize(`${title}\n${content}`),
+      groupTitle: /^\d+\.\s/.test(title) ? title.replace(/^\d+\.\s*/, "") : groupTitle,
       type: /^\d+\.\s/.test(title) ? "category" : "drug"
     };
 
@@ -224,6 +236,10 @@ function isEntryTitle(title, nextLine = "") {
 
   const next = (nextLine || "").trim();
   return next.startsWith("-") && title.length < 80;
+}
+
+function isGroupHeading(title) {
+  return /^[A-Z]\. /.test(title);
 }
 
 function trimBlankEdges(lines) {
@@ -270,6 +286,7 @@ function buildExampleMedicationEntries(entry, start) {
     content: `${drug}\nCategory: ${category}\n\n${counselingText}`,
     searchText: normalize(`${drug}\n${category}\n${counselingText}`),
     category,
+    groupTitle: entry.groupTitle || category,
     type: "drug"
   }));
 }
@@ -349,7 +366,7 @@ function cleanDrugOptionName(name) {
 function isDrugOptionName(name) {
   if (!name || name.length > 60) return false;
   return !/^(additional|aminoglycosides|antibiotics|anticoagulants|antiplatelets|antivirals|antifungals|azole|basic|blood pressure|bowel|common|corticosteroids|diabetes|diuretics|examples|general|heart failure|infection|inhalers|maintenance|medications|pain|part|psychiatric|quinolones|rejection|seizure|source|table|transplant)/i.test(name)
-    && !/\b(category|counseling|focus|guide|immunosuppression|medications|note|section|shared|subcutaneous|such as)\b/i.test(name);
+    && !/\b(category|counseling|diuretics|focus|guide|immunosuppression|medications|note|rapid-acting|section|shared|subcutaneous|such as|therapy)\b/i.test(name);
 }
 
 function addMedication(query) {
@@ -479,14 +496,20 @@ function renderFullGuide() {
 
 function buildGuideSections() {
   return currentGuide().entries
-    .filter((entry) => entry.type === "category" || !entry.category)
+    .filter((entry) => shouldRenderGuideSection(entry))
     .filter((entry) => state.activeGuide !== "patient" || entry.type === "category")
     .map((entry) => ({
       id: `guide-section-${entry.id}`,
       title: entry.title,
       content: entry.content,
+      groupTitle: entry.groupTitle || stripSectionNumber(entry.title),
       meds: buildTocMedNames(entry)
     }));
+}
+
+function shouldRenderGuideSection(entry) {
+  if (state.activeGuide === "patient") return entry.type === "category";
+  return entry.type === "category" || !entry.category;
 }
 
 function buildTocMedNames(entry) {
@@ -503,18 +526,47 @@ function renderGuideToc(sections) {
   return `
     <nav class="guide-toc" aria-label="${escapeHtml(t("tableOfContents"))}">
       <h3>${escapeHtml(t("tableOfContents"))}</h3>
-      ${sections.map((section) => `
+      ${buildTocGroups(sections).map((group) => `
         <div class="toc-group">
-          <a href="#${escapeHtml(section.id)}" data-guide-target="${escapeHtml(section.id)}" class="toc-section">${escapeHtml(stripSectionNumber(section.title))}</a>
-          ${section.meds.length ? `
+          <a href="#${escapeHtml(group.id)}" data-guide-target="${escapeHtml(group.id)}" class="toc-section">${escapeHtml(group.title)}</a>
+          ${group.meds.length ? `
             <div class="toc-meds">
-              ${section.meds.map((name) => `<a href="#${escapeHtml(section.id)}" data-guide-target="${escapeHtml(section.id)}">${escapeHtml(name)}</a>`).join("")}
+              ${group.meds.map((med) => `<a href="#${escapeHtml(med.id)}" data-guide-target="${escapeHtml(med.id)}">${escapeHtml(med.name)}</a>`).join("")}
             </div>
           ` : ""}
         </div>
       `).join("")}
     </nav>
   `;
+}
+
+function buildTocGroups(sections) {
+  if (state.activeGuide === "patient") {
+    return sections.map((section) => ({
+      id: section.id,
+      title: stripSectionNumber(section.title),
+      meds: section.meds.map((name) => ({ id: section.id, name }))
+    }));
+  }
+
+  const groups = [];
+  sections.forEach((section) => {
+    const title = section.groupTitle || stripSectionNumber(section.title);
+    let group = groups.find((item) => item.title === title);
+    if (!group) {
+      group = { id: section.id, title, meds: [] };
+      groups.push(group);
+    }
+
+    const names = section.meds.length ? section.meds : getDrugOptionNames({ title: section.title, content: section.content });
+    names.forEach((name) => {
+      if (!group.meds.some((med) => normalize(med.name) === normalize(name))) {
+        group.meds.push({ id: section.id, name });
+      }
+    });
+  });
+
+  return groups;
 }
 
 function renderGuideSection(section) {
