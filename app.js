@@ -26,6 +26,7 @@ const TEXT = {
   clear: "Clear",
   empty: "Add a medication to build the counseling handout.",
   sourceTitle: "Full Guide Source",
+  tableOfContents: "Table of Contents",
   print: "Print",
   cleared: "Medication list cleared.",
   addedExact: (name) => `Added ${name}.`,
@@ -319,7 +320,9 @@ function getDrugOptionNames(entry) {
   const titleWithoutParentheticals = entry.title.replace(/\s*\([^)]*\)\s*/g, " ").trim();
   const sourceNames = entry.category
     ? [entry.title]
-    : parentheticalNames.concat(splitAliasTitle(titleWithoutParentheticals), titleWithoutParentheticals, extractExamples(entry.content));
+    : (parentheticalNames.length
+      ? parentheticalNames.concat(extractExamples(entry.content))
+      : splitAliasTitle(titleWithoutParentheticals).concat(titleWithoutParentheticals, extractExamples(entry.content)));
 
   return sourceNames
     .flatMap(splitDrugOptionName)
@@ -345,8 +348,8 @@ function cleanDrugOptionName(name) {
 
 function isDrugOptionName(name) {
   if (!name || name.length > 60) return false;
-  return !/^(additional|antibiotics|anticoagulants|antiplatelets|antivirals|antifungals|basic|blood pressure|bowel|common|corticosteroids|diabetes|diuretics|examples|general|heart failure|infection|inhalers|medications|pain|part|psychiatric|rejection|seizure|source|table|transplant)/i.test(name)
-    && !/\b(category|counseling|focus|guide|medications|note|section|shared|subcutaneous|such as)\b/i.test(name);
+  return !/^(additional|aminoglycosides|antibiotics|anticoagulants|antiplatelets|antivirals|antifungals|azole|basic|blood pressure|bowel|common|corticosteroids|diabetes|diuretics|examples|general|heart failure|infection|inhalers|maintenance|medications|pain|part|psychiatric|quinolones|rejection|seizure|source|table|transplant)/i.test(name)
+    && !/\b(category|counseling|focus|guide|immunosuppression|medications|note|section|shared|subcutaneous|such as)\b/i.test(name);
 }
 
 function addMedication(query) {
@@ -455,7 +458,75 @@ function renderResults() {
 
 function renderFullGuide() {
   els.guideTitle.textContent = `${t("sourceTitle")} - ${state.activeGuide === "patient" ? t("patientMode") : t("detailedMode")}`;
-  els.fullGuide.textContent = currentGuide().text;
+  const sections = buildGuideSections();
+  els.fullGuide.innerHTML = `
+    ${renderGuideToc(sections)}
+    <div class="guide-sections">
+      ${sections.map(renderGuideSection).join("")}
+    </div>
+  `;
+
+  els.fullGuide.querySelectorAll("[data-guide-target]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const target = document.getElementById(link.dataset.guideTarget);
+      if (!target) return;
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.focus({ preventScroll: true });
+    });
+  });
+}
+
+function buildGuideSections() {
+  return currentGuide().entries
+    .filter((entry) => entry.type === "category" || !entry.category)
+    .filter((entry) => state.activeGuide !== "patient" || entry.type === "category")
+    .map((entry) => ({
+      id: `guide-section-${entry.id}`,
+      title: entry.title,
+      content: entry.content,
+      meds: buildTocMedNames(entry)
+    }));
+}
+
+function buildTocMedNames(entry) {
+  const names = entry.type === "category"
+    ? extractExamples(entry.content)
+    : getDrugOptionNames(entry);
+
+  return [...new Set(names.flatMap(splitDrugOptionName).filter(isDrugOptionName))];
+}
+
+function renderGuideToc(sections) {
+  if (!sections.length) return "";
+
+  return `
+    <nav class="guide-toc" aria-label="${escapeHtml(t("tableOfContents"))}">
+      <h3>${escapeHtml(t("tableOfContents"))}</h3>
+      ${sections.map((section) => `
+        <div class="toc-group">
+          <a href="#${escapeHtml(section.id)}" data-guide-target="${escapeHtml(section.id)}" class="toc-section">${escapeHtml(stripSectionNumber(section.title))}</a>
+          ${section.meds.length ? `
+            <div class="toc-meds">
+              ${section.meds.map((name) => `<a href="#${escapeHtml(section.id)}" data-guide-target="${escapeHtml(section.id)}">${escapeHtml(name)}</a>`).join("")}
+            </div>
+          ` : ""}
+        </div>
+      `).join("")}
+    </nav>
+  `;
+}
+
+function renderGuideSection(section) {
+  return `
+    <section id="${escapeHtml(section.id)}" class="guide-section" tabindex="-1">
+      <pre>${escapeHtml(section.content)}</pre>
+    </section>
+  `;
+}
+
+function stripSectionNumber(title) {
+  return title.replace(/^\d+\.\s*/, "");
 }
 
 function setStatus(message, warn = false) {

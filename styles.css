@@ -247,13 +247,74 @@ summary:focus-visible {
 }
 
 .med-card pre,
-#fullGuide {
+.guide-section pre {
   margin: 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   color: #26323f;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 0.95rem;
+}
+
+.guide-toc {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.guide-toc h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.toc-group {
+  display: grid;
+  gap: 6px;
+}
+
+.toc-section {
+  color: var(--accent-dark);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.toc-meds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.toc-meds a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #f9fbfc;
+  color: var(--ink);
+  font-size: 0.86rem;
+  text-decoration: none;
+}
+
+.toc-section:hover,
+.toc-meds a:hover {
+  text-decoration: underline;
+}
+
+.guide-sections {
+  display: grid;
+  gap: 18px;
+}
+
+.guide-section {
+  scroll-margin-top: 86px;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+
+.guide-section:first-child {
+  border-top: 0;
+  padding-top: 0;
 }
 
 details summary {

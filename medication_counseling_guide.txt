@@ -22,6 +22,74 @@ clinical questions on their own. Questions that require judgment or a patient-
 specific recommendation must be escalated to the supervising pharmacist.
 
 
+Table of Contents
+
+1. Antibiotics
+   Medications: Azithromycin, cefazolin, cefepime, ceftriaxone, doxycycline,
+   ertapenem, piperacillin-tazobactam, vancomycin, linezolid, metronidazole,
+   levofloxacin, ciprofloxacin.
+
+2. Blood Thinners and Antiplatelets
+   Medications: Heparin, enoxaparin, apixaban, rivaroxaban, warfarin, aspirin,
+   clopidogrel, ticagrelor.
+
+3. Diabetes Medications
+   Medications: Insulin glargine, insulin lispro, metformin, empagliflozin,
+   dapagliflozin.
+
+4. Heart Failure, Blood Pressure, and Diuretics
+   Medications: Sacubitril-valsartan, lisinopril, losartan, carvedilol,
+   metoprolol, furosemide, bumetanide, torsemide, spironolactone,
+   nitroglycerin.
+
+5. Breathing Medicines
+   Medications: Albuterol, ipratropium-albuterol, tiotropium,
+   fluticasone-salmeterol, budesonide-formoterol.
+
+6. Transplant and Immune-System Medicines
+   Medications: Tacrolimus, cyclosporine, mycophenolate, sirolimus,
+   everolimus, belatacept, antithymocyte globulin.
+
+7. Infection-Prevention Medicines for Transplant or Low Immunity
+   Medications: Valganciclovir, ganciclovir, sulfamethoxazole-trimethoprim,
+   atovaquone, dapsone, pentamidine, fluconazole, voriconazole, posaconazole.
+
+8. Pain Medicines: Non-Opioid
+   Medications: Acetaminophen, ibuprofen, ketorolac, naproxen, lidocaine
+   patches.
+
+9. Pain Medicines: Opioids
+   Medications: Oxycodone, hydromorphone, morphine, fentanyl,
+   hydrocodone-acetaminophen.
+
+10. Steroids
+    Medications: Prednisone, methylprednisolone, dexamethasone,
+    hydrocortisone.
+
+11. Nausea Medicines
+    Medications: Ondansetron, prochlorperazine, promethazine, metoclopramide.
+
+12. Bowel Medicines
+    Medications: Senna, polyethylene glycol, docusate, bisacodyl, lactulose.
+
+13. Psychiatric, Sleep, and Anxiety Medicines
+    Medications: Sertraline, escitalopram, quetiapine, haloperidol, trazodone,
+    melatonin, lorazepam.
+
+14. Seizure Medicines
+    Medications: Levetiracetam, phenytoin, valproate, lacosamide,
+    carbamazepine, oxcarbazepine, lamotrigine, topiramate, phenobarbital,
+    gabapentin.
+
+15. Electrolytes and Supplements
+    Medications: Potassium, magnesium, phosphate, iron, vitamin D, thiamine,
+    folic acid.
+
+16. Alcohol Withdrawal or Substance-Use Medicines
+    Medications: Lorazepam, diazepam, phenobarbital, thiamine, folic acid,
+    multivitamin, buprenorphine, methadone, naltrexone.
+
+
 Quick Bedside Script
 
 Opening
